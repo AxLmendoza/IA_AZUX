@@ -65,7 +65,7 @@ export default {
   },
   methods: {
     descargarPDF(id) {
-      alert(`Aquí se descargaría el PDF de la cotización ${id} 😘`)
+      alert(`Aquí se descargaría el PDF de la cotización ${id}`)
       // Luego se conectara con el backend: window.open(`/api/pdf/${id}`) creo bb 
     }
   }

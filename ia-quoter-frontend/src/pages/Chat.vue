@@ -46,7 +46,7 @@ export default {
 
       this.scrollToBottom()
 
-      // Simular respuesta del bot
+      // Simular respuesta del bot por el momento 
       setTimeout(() => {
         this.messages.push({
           sender: 'bot',

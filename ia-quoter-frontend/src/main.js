@@ -10,6 +10,6 @@ Vue.config.productionTip = false
 
 new Vue({
   router,
-  vuetify: new Vuetify(), // ✅ Solo una vez, todo bien
+  vuetify: new Vuetify(), // Solo una vez todo bien
   render: h => h(App)
 }).$mount('#app')

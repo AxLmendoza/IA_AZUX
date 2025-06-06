@@ -12,16 +12,16 @@ export default new Router({
   mode: 'history',
   routes: [
     {
-      path: '/',
-      redirect: '/login'
-    },
-    {
       path: '/login',
       name: 'Login',
       component: Login
     },
     {
       path: '/',
+      redirect: '/login'
+    },
+    {
+      path: '/app',
       component: SidebarLayout,
       children: [
         { path: '', name: 'Home', component: Home },

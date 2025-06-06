@@ -26,18 +26,18 @@
       <v-list dense nav class="mt-2">
         <!-- Home === SIUUUUUUUU-->
         <v-list-item
-          link
-          to="/home"
-          active-class="active-item"
-          class="sidebar-item"
-        >
-          <v-list-item-icon>
-            <v-icon class="sidebar-icon">mdi-home</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>Inicio</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+  link
+  to="/app"
+  active-class="active-item"
+  class="sidebar-item"
+>
+  <v-list-item-icon>
+    <v-icon class="sidebar-icon">mdi-home</v-icon>
+  </v-list-item-icon>
+  <v-list-item-content>
+    <v-list-item-title>Inicio</v-list-item-title>
+  </v-list-item-content>
+</v-list-item>
 
         <!-- Chat IA + Mensajes (grupo desplegable, SIN "Ir a Chat IA") -->
         <v-list-group
@@ -187,7 +187,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 16px 8px 16px;
+  padding: 30px 26px 18px 22px;
 }
 
 /* ----------------------------------
@@ -195,7 +195,7 @@ export default {
 ----------------------------------- */
 .divider-user {
   background-color: #30363d !important;
-  margin: 0 16px;
+  margin: 0 25px;
 }
 
 /* ----------------------------------

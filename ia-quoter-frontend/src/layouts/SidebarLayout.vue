@@ -1,93 +1,61 @@
 <template>
   <v-app>
     <!-- Ojo al piojo  -->
-    <v-navigation-drawer
-      app
-      permanent
-      dark
-      elevation="2"
-      width="260"
-      class="sidebar-gradient"
-      rounded
-    >
+    <v-navigation-drawer app permanent dark elevation="2" width="260" class="sidebar-gradient" rounded>
       <!-- ====== SOLO LOGO EN LA PARTE SUPERIOR XD ====== -->
       <v-list-item class="logo-container">
-        <v-img
-          src="@/assets/logo.png"
-          contain
-          height="40"
-          width="40"
-        />
+        <v-img src="@/assets/logo.png" contain height="68" width="68" />
       </v-list-item>
 
       <v-divider class="divider-user"></v-divider>
 
-      <!-- ====== NAVEGACIÓN PRINCIPAL ====== -->
-      <v-list dense nav class="mt-2">
-        <!-- Home === SIUUUUUUUU-->
-        <v-list-item
-  link
-  to="/app"
-  active-class="active-item"
-  class="sidebar-item"
->
-  <v-list-item-icon>
-    <v-icon class="sidebar-icon">mdi-home</v-icon>
-  </v-list-item-icon>
-  <v-list-item-content>
-    <v-list-item-title>Inicio</v-list-item-title>
-  </v-list-item-content>
-</v-list-item>
+      <!-- ...existing code... -->
+<v-list dense nav class="mt-2">
+  <!-- Home -->
+  <v-list-item :to="{ name: 'Home' }" exact router active-class="active-item" class="sidebar-item">
+    <v-list-item-icon>
+      <v-icon class="sidebar-icon">mdi-home</v-icon>
+    </v-list-item-icon>
+    <v-list-item-content>
+      <v-list-item-title>Inicio</v-list-item-title>
+    </v-list-item-content>
+  </v-list-item>
 
-        <!-- Chat IA + Mensajes (grupo desplegable, SIN "Ir a Chat IA") -->
-        <v-list-group
-          v-model="chatOpen"
-          no-action
-          prepend-icon=""
-          append-icon=""
-          class="message-group"
-        >
-          <!-- Activador del grupo -->
-          <template #activator>
-            <v-list-item class="sidebar-item group-activator">
-              <v-list-item-icon>
-                <v-icon class="sidebar-icon">mdi-chat-processing</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>Chat IA</v-list-item-title>
-              </v-list-item-content>
-              <!-- Única flecha giratoria -->
-              <v-list-item-icon class="rotate-icon">
-                <v-icon :class="{ 'rotated': chatOpen }">mdi-chevron-down</v-icon>
-              </v-list-item-icon>
-            </v-list-item>
-          </template>
+  <!-- Chat IA + Mensajes -->
+  <v-list-group v-model="chatOpen" no-action prepend-icon="" append-icon="" class="message-group">
+    <template #activator>
+      <v-list-item class="sidebar-item group-activator">
+        <v-list-item-icon>
+          <v-icon class="sidebar-icon">mdi-chat-processing</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>MESSAGE</v-list-item-title>
+        </v-list-item-content>
+        <v-list-item-icon class="rotate-icon">
+          <v-icon :class="{ 'rotated': chatOpen }">mdi-chevron-down</v-icon>
+        </v-list-item-icon>
+      </v-list-item>
+    </template>
 
-          <!-- Mensajes recientes -->
-          <v-list-item class="sidebar-item message-item">
-            <v-list-item-content>
-              <v-list-item-subtitle class="message-text">
-                • Hola, quiero saber un precio
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item class="sidebar-item message-item">
-            <v-list-item-content>
-              <v-list-item-subtitle class="message-text">
-                • En cuánto me sale esto
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-group>
+    <!-- Mensajes recientes -->
+    <v-list-item :to="{ name: 'Chat', params: { id: 1 } }" router class="sidebar-item message-item">
+      <v-list-item-content>
+        <v-list-item-subtitle class="message-text">
+          • Hola, quiero saber un precio
+        </v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+    <v-list-item :to="{ name: 'Chat', params: { id: 2 } }" router class="sidebar-item message-item">
+      <v-list-item-content>
+        <v-list-item-subtitle class="message-text">
+          • En cuánto me sale esto
+        </v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+  </v-list-group>
 
         <!-- Entrenamiento + History Training (grupo desplegable, SIN "Ir a Entrenamiento") -->
-        <v-list-group
-          v-model="trainingOpen"
-          no-action
-          prepend-icon=""
-          append-icon=""
-          class="training-group mt-2"
-        >
+        <v-list-group v-model="trainingOpen" no-action prepend-icon="" append-icon="" class="training-group mt-2">
           <!-- Activador del grupo -->
           <template #activator>
             <v-list-item class="sidebar-item group-activator">
@@ -129,12 +97,7 @@
 
       <!-- ====== BOTÓN DE LOGOUT CENTRADO ====== -->
       <div class="logout-container">
-        <v-btn
-          color="red darken-2"
-          dark
-          class="logout-btn"
-          @click="logout"
-        >
+        <v-btn color="red darken-2" dark class="logout-btn" @click="logout">
           <v-icon left>mdi-logout</v-icon>
           Salir
         </v-btn>
@@ -172,12 +135,10 @@ export default {
    GRADIENTE SUTIL PARA EL SIDEBAR
 ----------------------------------- */
 .sidebar-gradient {
-  background: linear-gradient(
-    180deg,
-    #161b22 0%,
-    #171f24 30%,
-    #161b22 100%
-  );
+  background: linear-gradient(180deg,
+      #161b22 0%,
+      #171f24 30%,
+      #161b22 100%);
 }
 
 /* ----------------------------------
@@ -218,6 +179,7 @@ export default {
   transition: color 0.3s, transform 0.3s;
   color: #8b949e;
 }
+
 .sidebar-item:hover .sidebar-icon {
   color: #c9d1d9;
   transform: scale(1.1);
@@ -240,9 +202,11 @@ export default {
   border-top-right-radius: 8px !important;
   border-bottom-right-radius: 8px !important;
 }
+
 .active-item .v-list-item-title {
   color: #ffffff !important;
 }
+
 .active-item .sidebar-icon {
   color: #ffffff !important;
 }
@@ -258,6 +222,7 @@ export default {
 .rotate-icon {
   transition: transform 0.3s;
 }
+
 .rotate-icon .rotated {
   transform: rotate(180deg);
 }
@@ -269,9 +234,11 @@ export default {
   transition: background-color 0.3s;
   margin-right: -12px;
 }
+
 .message-item:hover {
   background-color: rgba(255, 255, 255, 0.04) !important;
 }
+
 .message-text {
   font-size: 13px;
   color: #8b949e;
@@ -285,9 +252,11 @@ export default {
   display: flex;
   align-items: center;
 }
+
 .training-group .rotate-icon {
   transition: transform 0.3s;
 }
+
 .training-group .rotated {
   transform: rotate(180deg);
 }
@@ -302,19 +271,23 @@ export default {
   transition: background-color 0.3s;
   margin-right: -12px;
 }
+
 .history-item:hover {
   background-color: rgba(255, 255, 255, 0.06) !important;
 }
+
 .history-title {
   color: #c9d1d9;
   font-weight: 600;
   font-size: 14px;
 }
+
 .history-date {
   font-size: 12px;
   color: #8b949e;
   margin-top: 2px;
 }
+
 .history-desc {
   font-size: 12px;
   color: #8b949e;
@@ -328,12 +301,14 @@ export default {
 .logout-container {
   display: flex;
   justify-content: center;
-  padding-bottom: 200px;
+  padding-bottom: 24px;
 }
+
 .logout-btn {
   width: 80%;
   transition: transform 0.2s;
 }
+
 .logout-btn:hover {
   transform: translateY(-2px);
 }

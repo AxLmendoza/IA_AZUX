@@ -1,11 +1,17 @@
 <template>
   <div class="login-page">
     <div class="login-card">
-      <img src="@/assets/logo.png" alt="Logo" class="logo" />
+      <div class="logo-container">
+        <img src="@/assets/logo.png" alt="Logo 1" class="logo" />
+        <span class="plus">+</span>
+        <img src="@/assets/AI.png" alt="Logo 2" class="logo" />
+      </div>
+
       <h2>INICIAR SESIÓN</h2>
+
       <form @submit.prevent="handleLogin">
-        <input v-model="username" type="text" placeholder="Usuario" required />
-        <input v-model="password" type="password" placeholder="Contraseña" required />
+        <input v-model="email" type="text" placeholder="Usuario o Email" required />
+        <input v-model="pwd" type="password" placeholder="Contraseña" required />
         <button type="submit">Acceder</button>
         <p v-if="error" class="error">{{ error }}</p>
       </form>
@@ -14,26 +20,30 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+
 export default {
   name: 'LoginPage',
   data() {
     return {
-      username: '',
-      password: '',
+      email: '', // <-- Cambiado para que coincida con el v-model
+      pwd: '',   // <-- Cambiado para que coincida con el v-model
       error: ''
-    }
+    };
   },
   methods: {
-    handleLogin() {
-      // Aquí se va a conectar el back pero despues xd
- if (this.username === 'admin' && this.password === 'admin') {
-  this.$router.push({ name: 'Home' }) // Usa el nombre de la ruta
-} else {
-  this.error = 'Usuario o contraseña incorrectos'
-}
+    ...mapActions('auth', ['login']),
+    async handleLogin() {
+      try {
+        await this.login({ email: this.email, pwd: this.pwd });
+        this.$router.push('/home');
+      } catch (err) {
+        console.log('Login error:', err);
+        this.error = err.response?.data?.error || 'Error al iniciar sesión';
+      }
     }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -51,12 +61,26 @@ export default {
   border-radius: 10px;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
   text-align: center;
-  width: 300px;
+  width: 320px;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0px;
+  margin-bottom: 20px;
 }
 
 .logo {
-  width: 50%;
-  margin-bottom: 10px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.plus {
+  color: white;
+  font-size: 28px;
+  font-weight: bold;
 }
 
 h2 {

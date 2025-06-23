@@ -9,50 +9,59 @@
 
       <v-divider class="divider-user"></v-divider>
 
-      <!-- ...existing code... -->
-<v-list dense nav class="mt-2">
-  <!-- Home -->
-  <v-list-item :to="{ name: 'Home' }" exact router active-class="active-item" class="sidebar-item">
-    <v-list-item-icon>
-      <v-icon class="sidebar-icon">mdi-home</v-icon>
-    </v-list-item-icon>
-    <v-list-item-content>
-      <v-list-item-title>Inicio</v-list-item-title>
-    </v-list-item-content>
-  </v-list-item>
+      <v-list dense nav class="mt-2">
+        <!-- Home -->
+        <v-list-item :to="{ name: 'Home' }" exact router active-class="active-item" class="sidebar-item">
+          <v-list-item-icon>
+            <v-icon class="sidebar-icon">mdi-home</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Inicio</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
 
-  <!-- Chat IA + Mensajes -->
-  <v-list-group v-model="chatOpen" no-action prepend-icon="" append-icon="" class="message-group">
-    <template #activator>
-      <v-list-item class="sidebar-item group-activator">
-        <v-list-item-icon>
-          <v-icon class="sidebar-icon">mdi-chat-processing</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>MESSAGE</v-list-item-title>
-        </v-list-item-content>
-        <v-list-item-icon class="rotate-icon">
-          <v-icon :class="{ 'rotated': chatOpen }">mdi-chevron-down</v-icon>
-        </v-list-item-icon>
-      </v-list-item>
-    </template>
+        <!-- Chat IA + Mensajes -->
+        <v-list-group v-model="chatOpen" no-action prepend-icon="" append-icon="" class="message-group">
+          <template #activator>
+            <v-list-item class="sidebar-item group-activator">
+              <v-list-item-icon>
+                <v-icon class="sidebar-icon">mdi-chat-processing</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>MENSAJES</v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-icon class="rotate-icon">
+                <v-icon :class="{ 'rotated': chatOpen }">mdi-chevron-down</v-icon>
+              </v-list-item-icon>
+            </v-list-item>
+          </template>
 
-    <!-- Mensajes recientes -->
-    <v-list-item :to="{ name: 'Chat', params: { id: 1 } }" router class="sidebar-item message-item">
-      <v-list-item-content>
-        <v-list-item-subtitle class="message-text">
-          • Hola, quiero saber un precio
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-    <v-list-item :to="{ name: 'Chat', params: { id: 2 } }" router class="sidebar-item message-item">
-      <v-list-item-content>
-        <v-list-item-subtitle class="message-text">
-          • En cuánto me sale esto
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-  </v-list-group>
+          <!-- Botón para nueva conversación -->
+          <v-list-item
+            @click="nuevaConversacion"
+              class="sidebar-item message-item new-conv-btn"
+               style="cursor:pointer;"
+>
+  <v-list-item-content>
+    <v-list-item-subtitle class="message-text">
+      + Nueva conversación
+    </v-list-item-subtitle>
+  </v-list-item-content>
+</v-list-item>
+
+          <!-- Historial de conversaciones -->
+          <v-list-item v-for="conv in conversaciones" :key="conv.id" :to="{ name: 'Chat', params: { id: conv.id } }"
+            router class="sidebar-item message-item">
+            <v-list-item-content>
+              <v-list-item-subtitle class="message-text">
+                {{ conv.titulo || 'Conversación ' + conv.id }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-icon small @click.stop="borrarConversacion(conv.id)" color="red">mdi-delete</v-icon>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list-group>
 
         <!-- Entrenamiento + History Training (grupo desplegable, SIN "Ir a Entrenamiento") -->
         <v-list-group v-model="trainingOpen" no-action prepend-icon="" append-icon="" class="training-group mt-2">
@@ -71,25 +80,21 @@
               </v-list-item-icon>
             </v-list-item>
           </template>
-
           <!-- History Training -->
-          <v-list-item class="sidebar-item history-item">
-            <v-list-item-icon>
-              <v-icon class="sidebar-icon">mdi-history</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title class="history-title">
-                History Training
-              </v-list-item-title>
-              <v-list-item-subtitle class="history-date">
-                27/05/2025
-              </v-list-item-subtitle>
-              <v-list-item-subtitle class="history-desc">
-                • Prompt<br />
-                • Mailing: correos para carritos
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
+
+<v-list-item
+  :to="{ name: 'Training' }"
+  router
+  class="sidebar-item training-btn"
+>
+  <v-list-item-icon>
+    <v-icon class="sidebar-icon">mdi-upload</v-icon>
+  </v-list-item-icon>
+  <v-list-item-content>
+    <v-list-item-title>Ir a Entrenamiento</v-list-item-title>
+  </v-list-item-content>
+</v-list-item>
+
         </v-list-group>
       </v-list>
 
@@ -118,19 +123,57 @@ export default {
   name: 'SidebarLayout',
   data() {
     return {
-      chatOpen: false,
+      chatOpen: true,
       trainingOpen: false,
+      conversaciones: JSON.parse(localStorage.getItem('conversaciones') || '[]')
     };
   },
   methods: {
+    nuevaConversacion() {
+      const nuevoId = Date.now();
+      const nueva = {
+        id: nuevoId,
+        titulo: 'Conversación ' + (this.conversaciones.length + 1),
+        messages: [
+          { role: 'system', content: 'Eres un asistente útil.' }
+        ]
+      };
+      this.conversaciones.push(nueva);
+      localStorage.setItem('conversaciones', JSON.stringify(this.conversaciones));
+      this.$router.push({ name: 'Chat', params: { id: nuevoId } });
+    },
+    borrarConversacion(id) {
+      this.conversaciones = this.conversaciones.filter(c => c.id !== id);
+      localStorage.setItem('conversaciones', JSON.stringify(this.conversaciones));
+      // Si la conversación borrada está activa, redirige al home
+      if (this.$route.name === 'Chat' && this.$route.params.id == id) {
+        this.$router.push({ name: 'home' });
+      }
+    },
     logout() {
       this.$router.push('/');
-    },
+    }
   },
+  watch: {
+    // Guarda el historial si cambia
+    conversaciones: {
+      handler(val) {
+        localStorage.setItem('conversaciones', JSON.stringify(val));
+      },
+      deep: true
+    }
+  }
 };
 </script>
 
 <style scoped>
+.new-conv-btn {
+  background-color: #22384d !important; /*Color del Boton de nueva conversasion */
+  color: #fff !important;
+}
+.new-conv-btn:hover {
+  background-color: #1565c0 !important;
+}
 /* ----------------------------------
    GRADIENTE SUTIL PARA EL SIDEBAR
 ----------------------------------- */

@@ -3,33 +3,33 @@
     <h1 class="title">Cotizaciones Generadas</h1>
 
     <table class="quote-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Cliente</th>
-          <th>Correo</th>
-          <th>Fecha</th>
-          <th>Estado</th>
-          <th>PDF</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="quote in quotes" :key="quote.id">
-          <td>{{ quote.id }}</td>
-          <td>{{ quote.cliente }}</td>
-          <td>{{ quote.email }}</td>
-          <td>{{ quote.fecha }}</td>
-          <td>
-            <span :class="['status', quote.estado.toLowerCase()]">
-              {{ quote.estado }}
-            </span>
-          </td>
-          <td>
-            <button @click="descargarPDF(quote.id)">📄</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Cliente</th>
+      <th>Correo</th>
+      <th>Fecha</th>
+      <th>Estado</th>
+      <th>PDF</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="quote in quotes" :key="quote._id">
+      <td>{{ quote._id }}</td>
+      <td>{{ quote.cliente }}</td>
+      <td>{{ quote.email }}</td>
+      <td>{{ new Date(quote.fecha).toLocaleString() }}</td>
+      <td>
+        <span :class="['status', (quote.estado || 'pendiente').toLowerCase()]">
+          {{ quote.estado || 'Pendiente' }}
+        </span>
+      </td>
+      <td>
+        <button @click="descargarPDF(quote._id)">📄</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
   </div>
 </template>
 
@@ -38,35 +38,16 @@ export default {
   name: 'HomePage',
   data() {
     return {
-      quotes: [
-        {
-          id: 'Q-001',
-          cliente: 'Carlos López',
-          email: 'carlos@example.com',
-          fecha: '2025-06-03',
-          estado: 'Aprobada'
-        },
-        {
-          id: 'Q-002',
-          cliente: 'María Pérez',
-          email: 'maria@example.com',
-          fecha: '2025-06-01',
-          estado: 'Pendiente'
-        },
-        {
-          id: 'Q-003',
-          cliente: 'Luis Torres',
-          email: 'luis@example.com',
-          fecha: '2025-05-30',
-          estado: 'Rechazada'
-        }
-      ]
+      quotes: []
     }
+  },
+  async mounted() {
+    const res = await fetch('http://localhost:2018/api/quote/all');
+    this.quotes = await res.json();
   },
   methods: {
     descargarPDF(id) {
-      alert(`Aquí se descargaría el PDF de la cotización ${id}`)
-      // Luego se conectara con el backend: window.open(`/api/pdf/${id}`) creo bb 
+      window.open(`http://localhost:2018/api/quote/pdf/${id}`);
     }
   }
 }

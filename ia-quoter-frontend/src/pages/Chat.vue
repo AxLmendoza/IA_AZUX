@@ -1,46 +1,43 @@
 <template>
   <div class="chat-page">
-    <!-- Header con ID y iconos -->
+    <!-- Header -->
     <div class="chat-header">
-      <div class="header-left">
-        <span class="session-id">ID: 1</span>
-      </div>
-      <div class="header-center">
-        <h2>AI Coti</h2>
-      </div>
-      <div class="header-right">
-        <i class="icon-bell"></i>
-        <i class="icon-code"></i>
-        <i class="icon-arrow-down"></i>
-      </div>
+      <span class="chat-id">ID: {{ currentConversation.id }}</span>
     </div>
 
     <!-- Mensajes -->
-    <div class="chat-messages" ref="chatScroll">
+    <div class="chat-messages">
       <div
-        v-for="(msg, index) in messages"
-        :key="index"
-        :class="['message', msg.sender]"
+        v-for="(msg, i) in currentConversation.messages"
+        :key="i"
+        :class="['message', msg.role]"
       >
-        <div class="avatar">
-          <span v-if="msg.sender === 'bot'">🤖</span>
-          <span v-else>👤</span>
-        </div>
-        <div class="bubble">
-          <!-- Si es bot, añadir un animal al inicio -->
-          <span v-if="msg.sender === 'bot'" class="animal"> </span>{{ msg.text }}
-        </div>
+        <!-- IA a la izquierda -->
+        <template v-if="msg.role === 'assistant'">
+          <div class="avatar left">
+            <img src="@/assets/logo.png" alt="IA" class="avatar-img" />
+          </div>
+          <div class="bubble left">
+            <span class="message-text">{{ msg.content }}</span>
+          </div>
+        </template>
+        <!-- Usuario a la derecha -->
+        <template v-else-if="msg.role === 'user'">
+          <div class="bubble right">
+            <span class="message-text">{{ msg.content }}</span>
+          </div>
+        </template>
       </div>
     </div>
 
-    <!-- Entrada -->
+    <!-- Input -->
     <div class="chat-input">
       <input
         v-model="userInput"
-        @keyup.enter="sendMessage"
         placeholder="Escribe tu mensaje..."
+        @keyup.enter="enviarMensaje"
       />
-      <button @click="sendMessage">Enviar</button>
+      <button class="send-btn" @click="enviarMensaje" :disabled="!userInput">⬆️</button>
     </div>
   </div>
 </template>
@@ -51,50 +48,80 @@ export default {
   data() {
     return {
       userInput: '',
-      messages: [
-        {
-          sender: 'bot',
-          text: 'Hola soy tu asistente de cotizaciones. ¿En qué te puedo ayudar hoy?'
-        }
-      ]
+      conversaciones: JSON.parse(localStorage.getItem('conversaciones') || '[]'),
+      currentConversation: {
+        id: null,
+        messages: []
+      }
+    };
+  },
+  watch: {
+    '$route.params.id': {
+      immediate: true,
+      handler(newId) {
+        this.cargarConversacion(newId);
+      }
     }
   },
   methods: {
-    sendMessage() {
-      const text = this.userInput.trim()
-      if (!text) return
-
-      this.messages.push({ sender: 'user', text })
-      this.userInput = ''
-      this.scrollToBottom()
-
-      // Simular respuesta del bot con cariño y un animal
-      setTimeout(() => {
-        this.messages.push({
-          sender: 'bot',
-          text: this.getMockResponse(text)
-        })
-        this.scrollToBottom()
-      }, 800)
-    },
-    getMockResponse(input) {
-      const lower = input.toLowerCase()
-      if (lower.includes('precio')) {
-        return '¿Podrías especificar el producto o servicio para cotizarlo?'
+    cargarConversacion(id) {
+      const conv = this.conversaciones.find(c => c.id == id);
+      if (conv) {
+        this.currentConversation = conv;
+      } else {
+        this.currentConversation = {
+          id,
+          messages: [
+            {
+              role: 'system',
+              content:
+                '¡Hola! Estás en el lugar correcto. Podemos ayudarte a crear una web increíble para tu restaurante. ¿Me compartes tu nombre y correo electrónico para enviarte una cotización personalizada?'
+            }
+          ]
+        };
+        this.conversaciones.push(this.currentConversation);
+        localStorage.setItem('conversaciones', JSON.stringify(this.conversaciones));
       }
-      if (lower.includes('hola')) {
-        return '¡Hola! ¿Necesitas una cotización o más detalles?'
-      }
-      return 'Gracias por tu mensaje. Te responderé en seguida con la info solicitada.'
     },
-    scrollToBottom() {
-      this.$nextTick(() => {
-        const el = this.$refs.chatScroll
-        el.scrollTop = el.scrollHeight
-      })
+    async enviarMensaje() {
+      if (!this.userInput) return;
+      this.currentConversation.messages.push({
+        role: 'user',
+        content: this.userInput
+      });
+
+      const respuesta = await fetch(
+        'https://api.groq.com/openai/v1/chat/completions',
+        {
+          method: 'POST',
+          headers: {
+            Authorization:
+              'Bearer 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',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'llama3-70b-8192',
+            messages: this.currentConversation.messages,
+            max_tokens: 100
+          })
+        }
+      ).then(res => res.json());
+
+      const aiMsg =
+        respuesta.choices?.[0]?.message?.content || 'Sin respuesta';
+      this.currentConversation.messages.push({
+        role: 'assistant',
+        content: aiMsg
+      });
+
+      this.userInput = '';
+      localStorage.setItem(
+        'conversaciones',
+        JSON.stringify(this.conversaciones)
+      );
     }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -104,6 +131,7 @@ export default {
   height: 100vh;
   background-color: #0d1117;
   color: #c9d1d9;
+  min-height: 0; 
 }
 
 .chat-header {
@@ -111,28 +139,25 @@ export default {
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px;
-  background-color: #161b22;
-  border-bottom: 1px solid #21262d;
 }
-.header-left .session-id {
+.chat-id {
   font-size: 14px;
   background: #21262d;
   padding: 4px 8px;
   border-radius: 4px;
 }
-.header-center h2 {
-  margin: 0;
-  font-size: 18px;
-}
-.header-right i {
-  margin-left: 12px;
-  cursor: pointer;
-}
 
 .chat-messages {
-  flex: 1;
+  flex: 1 1 auto;
   overflow-y: auto;
   padding: 20px;
+  min-height: 0; 
+  scrollbar-width: none;
+  -ms-overflow-style: none; 
+}
+
+.chat-messages::-webkit-scrollbar {
+  display: none; 
 }
 
 .message {
@@ -140,25 +165,32 @@ export default {
   align-items: flex-end;
   margin-bottom: 12px;
 }
-.message.bot {
+
+.message.assistant {
+  flex-direction: row;
   justify-content: flex-start;
 }
+
 .message.user {
+  flex-direction: row-reverse;
   justify-content: flex-end;
 }
 
 .avatar {
   width: 32px;
   height: 32px;
-  margin-right: 8px;
+  margin: 0 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 22px;
 }
-.message.user .avatar {
-  margin-left: 8px;
-  margin-right: 0;
+
+.avatar-img {
+  width: 35px;
+  height: 35px;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .bubble {
@@ -168,43 +200,70 @@ export default {
   line-height: 1.4;
   font-size: 15px;
   position: relative;
-}
-.message.bot .bubble {
-  background-color: #21262d;
-  color: #c9d1d9;
-  border-bottom-left-radius: 4px;
-}
-.message.user .bubble {
-  background-color: #238636;
-  color: #fff;
-  border-bottom-right-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 
-.animal {
-  margin-right: 4px;
+.bubble.left {
+  background-color: #1d1d1d;
+  color: #ffffff;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 16px;
+  border-top-right-radius: 16px;
+  border-top-left-radius: 16px;
+  margin-right: auto;
+}
+
+.bubble.right {
+  background-color: #474747;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 16px;
+  border-top-right-radius: 16px;
+  border-top-left-radius: 16px;
+  margin-left: auto;
+}
+
+.message-text {
+  word-break: break-word;
 }
 
 .chat-input {
   display: flex;
-  padding: 12px 20px;
-  border-top: 1px solid #21262d;
-  background-color: #161b22;
+  align-items: center;
+  padding: 16px 20px;
+  background: #161b22;
+  border-top: 1px solid #222;
 }
+
 .chat-input input {
   flex: 1;
   padding: 10px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
-  background-color: #21262d;
-  color: #c9d1d9;
-}
-.chat-input button {
-  margin-left: 12px;
-  padding: 10px 20px;
-  background-color: #238636;
-  border: none;
-  border-radius: 6px;
+  background: #21262d;
   color: #fff;
+  margin-right: 12px;
+  font-size: 15px;
+}
+
+.send-btn {
+  background: #238636;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 18px;
   cursor: pointer;
+  transition: background 0.2s;
+}
+
+.send-btn:disabled {
+  background: #444c56;
+  cursor: not-allowed;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
 }
 </style>

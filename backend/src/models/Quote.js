@@ -1,3 +1,4 @@
+//Conexion de Mongoose y definición del modelo Quote
 const mongoose = require('mongoose');
 
 const quoteSchema = new mongoose.Schema({

@@ -26,8 +26,8 @@ export default {
   name: 'LoginPage',
   data() {
     return {
-      email: '', // <-- Cambiado para que coincida con el v-model
-      pwd: '',   // <-- Cambiado para que coincida con el v-model
+      email: '', //Cambiado para que coincida con el v-model a moongo
+      pwd: '',   
       error: ''
     };
   },

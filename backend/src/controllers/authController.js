@@ -4,25 +4,25 @@ const jwt = require('jsonwebtoken');
 
 exports.login = async (req, res) => {
   const { email, pwd } = req.body;
-  console.log('Intentando login para:', email); // <-- Agregado
+  console.log('Intentando login para:', email); 
 
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      console.error('Usuario no encontrado:', email); // <-- Agregado
+      console.error('Usuario no encontrado:', email); 
       return res.status(401).json({ error: 'Usuario no encontrado' });
     }
 
     const valid = await bcrypt.compare(pwd, user.pwd);
     if (!valid) {
-      console.error('Contraseña incorrecta para:', email); // <-- Agregado
+      console.error('Contraseña incorrecta para:', email); 
       return res.status(401).json({ error: 'Contraseña incorrecta' });
     }
 
     const token = jwt.sign({ id: user._id }, process.env.AUTH_SECRET, { expiresIn: '1d' });
     res.json({ token, user: { email: user.email, _id: user._id } });
   } catch (err) {
-    console.error('Error en login:', err); // <-- Agregado
+    console.error('Error en login:', err);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };

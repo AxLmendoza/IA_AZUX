@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './routes'
-import store from './store' // <-- Importa el store
+import store from './store' 
 
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
@@ -11,7 +11,7 @@ Vue.config.productionTip = false
 
 new Vue({
   router,
-  store, // <-- AGREGA ESTA LÍNEA AQUÍ
+  store, 
   vuetify: new Vuetify(),
   render: h => h(App)
 }).$mount('#app')

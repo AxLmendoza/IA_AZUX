@@ -14,7 +14,7 @@ API.interceptors.request.use(config => {
 export function login({ email, pwd }) {
   return API.post('/auth/login', { email, pwd })
     .catch(err => {
-      console.error('API login error:', err); // <-- Agregado
+      console.error('API login error:', err); 
       throw err;
     });
 }

@@ -96,7 +96,7 @@ export default {
           method: 'POST',
           headers: {
             Authorization:
-              'Bearer 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',
+              'Bearer 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',
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({

@@ -26,7 +26,7 @@ export default {
   name: 'LoginPage',
   data() {
     return {
-      email: '', //Cambiado para que coincida con el v-model a moongo
+      email: '', 
       pwd: '',   
       error: ''
     };

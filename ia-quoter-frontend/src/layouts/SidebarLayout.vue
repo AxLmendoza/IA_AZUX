@@ -40,8 +40,7 @@
           <v-list-item
             @click="nuevaConversacion"
               class="sidebar-item message-item new-conv-btn"
-               style="cursor:pointer;"
->
+               style="cursor:pointer;">
   <v-list-item-content>
     <v-list-item-subtitle class="message-text">
       + Nueva conversación

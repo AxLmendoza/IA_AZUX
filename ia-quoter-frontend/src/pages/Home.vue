@@ -11,6 +11,7 @@
       <th>Fecha</th>
       <th>Estado</th>
       <th>PDF</th>
+      <th>Eliminar</th>
     </tr>
   </thead>
   <tbody>
@@ -24,8 +25,15 @@
           {{ quote.estado || 'Pendiente' }}
         </span>
       </td>
-      <td>
-        <button @click="descargarPDF(quote._id)">📄</button>
+      <td style="text-align: center;">
+        <button @click="descargarPDF(quote._id)">
+          <i class="fas fa-file-pdf"></i>
+        </button>
+      </td>
+      <td style="text-align: center;">
+        <button @click="eliminarCotizacion(quote._id)">
+          <i class="fas fa-trash-alt"></i>
+        </button>
       </td>
     </tr>
   </tbody>
@@ -48,12 +56,31 @@ export default {
   methods: {
     descargarPDF(id) {
       window.open(`http://localhost:2018/api/quote/pdf/${id}`);
+    },
+    async eliminarCotizacion(id) {
+      if (!confirm('¿Seguro que deseas eliminar esta cotización?')) return;
+      const res = await fetch(`http://localhost:2018/api/quote/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        this.quotes = this.quotes.filter(q => q._id !== id);
+      } else {
+        alert('Error eliminando la cotización');
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+button i {
+  font-size: 20px;
+  color: #58a6ff;
+}
+button:hover i.fa-trash-alt {
+  color: #f85149;
+}
+button:hover i.fa-file-pdf {
+  color: #d29922;
+}
 .home-page {
   padding: 30px;
   background-color: #0d1117;
@@ -74,11 +101,17 @@ export default {
   overflow: hidden;
 }
 
+
 .quote-table th,
 .quote-table td {
   padding: 12px 16px;
   text-align: left;
   color: #d1d5da;
+}
+
+.quote-table td:nth-child(6),
+.quote-table td:nth-child(7) {
+  text-align: center;
 }
 
 .quote-table thead {

@@ -1,6 +1,6 @@
 <template>
   <div class="training-container">
-    <h2>📂 & 🤖 Entrenamiento IA</h2>
+    <h2>Entrenamiento IA</h2>
     <div class="chat-messages">
       <div
         v-for="(msg, i) in messages"
@@ -13,7 +13,6 @@
         <div class="bubble" :class="msg.role === 'user' ? 'right' : 'left'">
           <span class="message-text">{{ msg.content }}</span>
         </div>
-        <div class="avatar" v-if="msg.role === 'user'">🧑</div>
       </div>
     </div>
     <div class="chat-input">
@@ -97,28 +96,34 @@ export default {
       this.userInput = '';
     },
     async generarCotizacion() {
-      console.log('Enviando datos al backend...');
-      const response = await fetch('http://localhost:2018/api/quote/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cliente: this.cliente,
-          email: this.email,
-          requerimiento: this.requerimiento
-        })
-      });
-      console.log('Respuesta recibida:', response);
-      if (!response.ok) {
-        alert('Error generando la cotización');
-        return;
-      }
-      const blob = await response.blob();
-      this.pdfUrl = window.URL.createObjectURL(blob);
-      this.messages.push({
-        role: 'assistant',
-        content: '¡Cotización generada! Puedes descargar tu PDF abajo.'
-      });
-    }
+  const response = await fetch('http://localhost:2018/api/quote/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      cliente: this.cliente,
+      email: this.email,
+      requerimiento: this.requerimiento
+    })
+  });
+  if (!response.ok) {
+    alert('Error generando la cotización');
+    return;
+  }
+  // Recibe el ID de la cotización creada en un header o en la respuesta JSON
+  const contentDisposition = response.headers.get('Content-Disposition');
+  let id = null;
+  if (contentDisposition) {
+    const match = contentDisposition.match(/cotizacion_(.*)\\.pdf/);
+    if (match) id = match[1];
+  }
+  const blob = await response.blob();
+  this.pdfUrl = window.URL.createObjectURL(blob);
+  this.cotizacionId = id; // Guarda el ID para usarlo en el enlace
+  this.messages.push({
+    role: 'assistant',
+    content: '¡Cotización generada! Puedes descargar tu PDF abajo.'
+  });
+}
   }
 };
 </script>
